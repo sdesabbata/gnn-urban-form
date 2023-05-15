@@ -15,12 +15,12 @@ from gnnuf_models import *
 class OSMxDataset(InMemoryDataset):
     def __init__(self,
                  root,
-                 street_nodes_sample=0.01, neighbourhood_min_nodes=1, max_distance=1000,
+                 neighbourhood_sample=0.01, neighbourhood_min_nodes=1, max_distance=1000,
                  transform=None, pre_transform=None, pre_filter=None
                  ):
         super().__init__(root, transform, pre_transform, pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
-        self.street_nodes_sample = street_nodes_sample
+        self.neighbourhood_sample = neighbourhood_sample
         self.neighbourhood_min_nodes = neighbourhood_min_nodes
         self.max_distance = max_distance
 
@@ -89,7 +89,7 @@ class OSMxDataset(InMemoryDataset):
             # Load whole street network
             G = ox.io.load_graphml(graphml_file_name)
             # Sample street nodes
-            sample_nodes = random.sample(list(G.nodes), math.ceil(len(G.nodes) * self.street_nodes_sample))
+            sample_nodes = random.sample(list(G.nodes), math.ceil(len(G.nodes) * self.neighbourhood_sample))
 
             # Create Pytorch Geometric graph for street networks around sampled street nodes
             for sampled_node in sample_nodes:
