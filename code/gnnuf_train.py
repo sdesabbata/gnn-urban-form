@@ -115,6 +115,7 @@ for epoch in range(1, epochs + 1):
 
     for osmnx_linegraph in osmnx_loader:
         optimizer.zero_grad()
+        osmnx_linegraph = osmnx_linegraph.to(device)
         z = model.encode(osmnx_linegraph.x, osmnx_linegraph.edge_index)
         loss = model.recon_loss(z, osmnx_linegraph.edge_index)
         osmnx_linegraph_loss = float(loss)
