@@ -12,17 +12,17 @@ from torch_geometric.utils import from_networkx
 # GNN models
 from gnnuf_models import *
 
-class OSMxDataset(InMemoryDataset):
+class OSMnxDataset(InMemoryDataset):
     def __init__(self,
                  root,
-                 neighbourhood_sample=0.01, neighbourhood_min_nodes=1, max_distance=1000,
-                 transform=None, pre_transform=None, pre_filter=None
+                 transform=None, pre_transform=None, pre_filter=None,
+                 neighbourhood_sample=0.01, neighbourhood_min_nodes=1, max_distance=1000
                  ):
-        super().__init__(root, transform, pre_transform, pre_filter)
-        self.data, self.slices = torch.load(self.processed_paths[0])
         self.neighbourhood_sample = neighbourhood_sample
         self.neighbourhood_min_nodes = neighbourhood_min_nodes
         self.max_distance = max_distance
+        super().__init__(root, transform, pre_transform, pre_filter)
+        self.data, self.slices = torch.load(self.processed_paths[0])
 
     @property
     def raw_file_names(self):
@@ -103,24 +103,27 @@ class OSMxDataset(InMemoryDataset):
 
                 # Only keep the sampled area if it has a minimum number of nodes
                 if len(sampled_ego_graph.nodes) > self.neighbourhood_min_nodes:
-
-                    # Extract lengths and slopes
-                    seg_edges_length = nx.get_edge_attributes(sampled_ego_graph, "length")
-                    seg_edges_edges_grade_abs = nx.get_edge_attributes(sampled_ego_graph, "grade_abs")
-
-                    # Create line graph
-                    seg_linegraph = nx.line_graph(sampled_ego_graph)
-                    # Add street lenghts and slopes as attribute x
-                    for seglg_node in seg_linegraph.nodes():
-                        seg_linegraph.nodes[seglg_node]["x"] = [
-                            seg_edges_length[(seglg_node[0], seglg_node[1], 0)],
-                            seg_edges_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
-                        ]
-                    del seglg_node
-
-                    # Create Pytorch Geometric graph
-                    pyg_graph = from_networkx(seg_linegraph)
-                    neighbourhoods_list.append(pyg_graph)
+                    neighbourhoods_list.append(self.to_pyg_linegraph(sampled_ego_graph))
 
         self.data, self.slices = self.collate(neighbourhoods_list)
         torch.save((self.data, self.slices), self.processed_paths[0])
+
+    # Convert linegraph to Pytorch Geometric linegraph
+    def to_pyg_linegraph(self, ego_graph):
+
+            # Extract lengths and slopes
+            seg_edges_length = nx.get_edge_attributes(ego_graph, "length")
+            seg_edges_grade_abs = nx.get_edge_attributes(ego_graph, "grade_abs")
+
+            # Create line graph
+            seg_linegraph = nx.line_graph(ego_graph)
+            # Add street lenghts and slopes as attribute x
+            for seglg_node in seg_linegraph.nodes():
+                seg_linegraph.nodes[seglg_node]["x"] = [
+                    seg_edges_length[(seglg_node[0], seglg_node[1], 0)],
+                    seg_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
+                ]
+            del seglg_node
+
+            # Return Pytorch Geometric graph
+            return from_networkx(seg_linegraph)

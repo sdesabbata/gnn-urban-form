@@ -25,11 +25,11 @@ else:
     print("Run on CPU")
 
 # Load the data
-osmnx_dataset = OSMxDataset(
+osmnx_dataset = OSMnxDataset(
     bulk_storage_directory + "/osmnx",
     neighbourhood_sample=0.05,
     neighbourhood_min_nodes=16,
-    max_distance=2000,
+    max_distance=2000
 )
 osmnx_dataset_train, osmnx_dataset_test = torch.utils.data.random_split(osmnx_dataset, [0.8, 0.2])
 osmnx_loader_train = DataLoader(osmnx_dataset_train, batch_size=32, shuffle=True)
