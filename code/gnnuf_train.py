@@ -1,5 +1,6 @@
 # Base libraries
 import numpy as np
+import copy
 # Torch
 from torch_geometric.nn import GAE
 from torch_geometric.loader import DataLoader
@@ -24,27 +25,36 @@ if torch.cuda.is_available():
 else:
     print("Run on CPU")
 
+dataset_neighbourhood_sample = 0.01
+dataset_neighbourhood_min_nodes = 8
+dataset_max_distance = 1000
+dataset_info_str = f"""{dataset_neighbourhood_sample=}
+{dataset_neighbourhood_min_nodes=}
+{dataset_max_distance=}"""
+
 # Load the data
 osmnx_dataset = OSMnxDataset(
     bulk_storage_directory + "/osmnx",
-    neighbourhood_sample=0.05,
-    neighbourhood_min_nodes=16,
-    max_distance=2000
+    neighbourhood_sample=dataset_neighbourhood_sample,
+    neighbourhood_min_nodes=dataset_neighbourhood_min_nodes,
+    max_distance=dataset_max_distance
 )
 osmnx_dataset_train, osmnx_dataset_test = torch.utils.data.random_split(osmnx_dataset, [0.8, 0.2])
 osmnx_loader_train = DataLoader(osmnx_dataset_train, batch_size=32, shuffle=True)
 osmnx_loader_test = DataLoader(osmnx_dataset_test, batch_size=32, shuffle=True)
 
 # Define the model
+model_name = "gnnuf_model_v0-1"
 model = GAE(VanillaGCNEncoder(2, 128, 64))
 model = model.to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
-print(model)
+model_info_str = str(model)
+print(model_info_str)
 
 # Train
 epochs = 1000
 best_model = None
-best_loss = math.Inf
+best_loss = math.inf
 for epoch in range(1, epochs + 1):
     print(f"{epoch=}")
     epoch_loss = 0
@@ -67,7 +77,7 @@ for epoch in range(1, epochs + 1):
     epoch_loss /= len(osmnx_loader_train)
     print(f"Average epoch loss over {len(osmnx_loader_train)} batches: {epoch_loss}")
     if epoch_loss < best_loss:
-        best_model = model.deepcopy()
+        best_model = copy.deepcopy(model)
 
 # Test
 best_model.eval()
@@ -83,4 +93,10 @@ test_loss /= len(osmnx_loader_test)
 print(f"Average test loss over {len(osmnx_loader_test)} batches: {test_loss}")
 
 # Save model
-torch.save(best_model.state_dict(), bulk_storage_directory + "/models/gnnuf_model_v0-1.pt")
+torch.save(best_model.state_dict(), this_repo_directory + "/models/" + model_name + ".pt")
+with open(this_repo_directory + "/models/" + model_name + "__info.txt", 'wt', encoding='utf-8') as file_info:
+    file_info.write("--- Dataset ---\n\n")
+    file_info.write(dataset_info_str+"\n\n")
+    file_info.write("--- Model ---\n\n")
+    file_info.write(model_name+"\n\n")
+    file_info.write(model_info_str+"\n\n")

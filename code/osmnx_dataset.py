@@ -1,6 +1,8 @@
 # Base libraries
 import os
 from os.path import isfile, join
+from datetime import datetime
+import sys
 import math
 import random
 # NetworkX
@@ -83,8 +85,17 @@ class OSMnxDataset(InMemoryDataset):
 
         neighbourhoods_list = []
 
+        # print(graphml_file_names)
+        # sys.stdout.write(graphml_file_names)
+
         for graphml_file_name in graphml_file_names:
-            print(f"Processing: {graphml_file_name}")
+            # Log files being processed
+            # print(f"Processing: {graphml_file_name}")
+            # sys.stdout.write(f"Processing: {graphml_file_name}")
+            f_log = open(join(self.root + "/log", graphml_file_name.split("/")[-1].replace(".graphml", ".txt")), "w")
+            f_log.write("Started processing..." + "\n")
+            f_log_timestamp = datetime.now().strftime('%Y%m%d_%H:%M:%S - ')
+            f_log.write(f_log_timestamp + "\n")
 
             # Load whole street network
             G = ox.io.load_graphml(graphml_file_name)
@@ -93,6 +104,7 @@ class OSMnxDataset(InMemoryDataset):
 
             # Create Pytorch Geometric graph for street networks around sampled street nodes
             for sampled_node in sample_nodes:
+                f_log.write(str(sampled_node) + "\n")
 
                 # Ego graph including street network within distance
                 sampled_ego_graph = nx.generators.ego_graph(
@@ -104,6 +116,11 @@ class OSMnxDataset(InMemoryDataset):
                 # Only keep the sampled area if it has a minimum number of nodes
                 if len(sampled_ego_graph.nodes) > self.neighbourhood_min_nodes:
                     neighbourhoods_list.append(self.to_pyg_linegraph(sampled_ego_graph))
+
+            f_log_timestamp = datetime.now().strftime('%Y%m%d_%H:%M:%S - ')
+            f_log.write(f_log_timestamp + "\n")
+            f_log.write("done." + "\n")
+            f_log.close()
 
         self.data, self.slices = self.collate(neighbourhoods_list)
         torch.save((self.data, self.slices), self.processed_paths[0])
@@ -119,9 +136,12 @@ class OSMnxDataset(InMemoryDataset):
             seg_linegraph = nx.line_graph(ego_graph)
             # Add street lenghts and slopes as attribute x
             for seglg_node in seg_linegraph.nodes():
+                seg_edge_length = seg_edges_length[(seglg_node[0], seglg_node[1], 0)]
+                seg_edge_grade_abs = seg_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
                 seg_linegraph.nodes[seglg_node]["x"] = [
-                    seg_edges_length[(seglg_node[0], seglg_node[1], 0)],
-                    seg_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
+                    # Normalisation
+                    (seg_edge_length / self.max_distance),
+                    ((seg_edge_grade_abs /0.05) if seg_edge_grade_abs<0.05 else 1.0)
                 ]
             del seglg_node
 
