@@ -52,13 +52,13 @@ else:
 model_name = "gnnuf_model_v0-1"
 model = GAE(VanillaGCNEncoder(2, 128, 64))
 model.load_state_dict(torch.load(this_repo_directory + "/models/" + model_name + ".pt", map_location=device))
+model = model.to(device)
 model.eval()
 
 # Load Leciester's graph
-leicester = ox.io.load_graphml(bulk_storage_directory + "/osmnx/raw/leicester-1864.graphml")
+leicester = ox.io.load_graphml(bulk_storage_directory + "/osmnx/raw_excluded/leicester-1864.graphml")
 
 leicester_embs = {}
-leicester_basestats_df = None
 neighbourhood_min_nodes = 8
 max_distance = 1000
 count = 0
@@ -72,7 +72,7 @@ for node in leicester.nodes:
     if len(node_ego_graph.nodes()) > neighbourhood_min_nodes:
 
         # Convert linegraph to Pytorch Geometric linegraph
-        node_pyglg = to_pyg_linegraph(node_ego_graph)
+        node_pyglg = to_pyg_linegraph(node_ego_graph, max_distance)
         node_pyglg = node_pyglg.to(device)
 
         # Encode
@@ -80,17 +80,8 @@ for node in leicester.nodes:
         node_pyglg_emb_gmp = global_mean_pool(node_pyglg_emb, None)
         leicester_embs[node] = np.squeeze(node_pyglg_emb_gmp.cpu().detach().numpy())
 
-        # Calculate base stats
-        basestats = ox.stats.basic_stats(node_ego_graph)
-        if leicester_basestats_df is None:
-            leicester_basestats_df = pd.DataFrame.from_dict(basestats)
-        else:
-            leicester_basestats_df = pd.concat([leicester_basestats_df, pd.DataFrame.from_dict(basestats)])
-
 # Save
 leicester_embs_df = pd.DataFrame.from_dict(leicester_embs, orient="index", columns=[f"EMB{i:03d}" for i in range(64)])
 leicester_embs_df = leicester_embs_df.reset_index()
 leicester_embs_df = leicester_embs_df.rename(columns={"index": "osmnx_node_id"})
 leicester_embs_df.to_csv(this_repo_directory + "/data/leicester-1864_emb_" + model_name + ".csv", index=False)
-
-leicester_basestats_df.to_csv(this_repo_directory + "/data/leicester-1864_basestats.csv", index=False)
