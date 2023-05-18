@@ -130,19 +130,16 @@ class OSMnxDataset(InMemoryDataset):
 
             # Extract lengths and slopes
             seg_edges_length = nx.get_edge_attributes(ego_graph, "length")
-            seg_edges_grade_abs = nx.get_edge_attributes(ego_graph, "grade_abs")
+            # seg_edges_grade_abs = nx.get_edge_attributes(ego_graph, "grade_abs")
 
             # Create line graph
             seg_linegraph = nx.line_graph(ego_graph)
             # Add street lenghts and slopes as attribute x
             for seglg_node in seg_linegraph.nodes():
                 seg_edge_length = seg_edges_length[(seglg_node[0], seglg_node[1], 0)]
-                seg_edge_grade_abs = seg_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
-                seg_linegraph.nodes[seglg_node]["x"] = [
-                    # Normalisation
-                    (seg_edge_length / self.max_distance),
-                    ((seg_edge_grade_abs /0.05) if seg_edge_grade_abs<0.05 else 1.0)
-                ]
+                # seg_edge_grade_abs = seg_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
+                seg_linegraph.nodes[seglg_node]["x"] = (seg_edge_length / self.max_distance) # Normalisation
+                # [, ((seg_edge_grade_abs /0.05) if seg_edge_grade_abs<0.05 else 1.0)]
             del seglg_node
 
             # Return Pytorch Geometric graph
