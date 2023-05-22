@@ -25,10 +25,10 @@ class VanillaGCNEncoder(torch.nn.Module):
         self.en_conv2 = GCNConv(gcn_channels, gcn_channels)
         self.en_linear2 = torch.nn.Linear(gcn_channels, out_channels)
 
-    def forward(self, x, edge_index):
-        x = self.en_linear1(x).relu()
-        x = self.en_conv1(x, edge_index).relu()
-        x = self.en_conv2(x, edge_index).relu()
+    def forward(self, x, edge_index, edge_weight):
+        # x = self.en_linear1(x).relu()
+        x = self.en_conv1(x, edge_index, edge_weight).relu()
+        x = self.en_conv2(x, edge_index, edge_weight).relu()
         x = self.en_linear2(x)
         return torch.tanh(x)
 

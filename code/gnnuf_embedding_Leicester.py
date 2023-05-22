@@ -36,6 +36,43 @@ def to_pyg_linegraph(ego_graph, max_distance):
     # Return Pytorch Geometric graph
     return from_networkx(seg_linegraph)
 
+def to_pyg_graph(ego_graph):
+
+    # Remove all node attributes but street_count (node degree)
+    # which becomes x
+    for _, node_attr in ego_graph.nodes(data=True):
+        street_count = node_attr["street_count"]
+        for key in list(node_attr):
+            node_attr.pop(key, None)
+        node_attr["x"] = [float(street_count)]
+
+    # Remove all edge attributes but length
+    # which becomes edge_weight
+    for _, _, edge_attr in ego_graph.edges(data=True):
+        length = edge_attr["length"]
+        for key in list(edge_attr):
+            edge_attr.pop(key, None)
+        edge_attr["edge_weight"] = [float(length)]
+
+    # Create Pytorch Geometric graph
+    pyg_graph = from_networkx(ego_graph)
+
+    # Normalise x and edge_weight between 0 and 1
+    # pyg_graph.x.max(dim=0)
+    # pyg_graph.edge_weight.max(dim=0)
+    pyg_graph.x = (pyg_graph.x / pyg_graph.x.max(dim=0).values)
+    pyg_graph.edge_weight = 1 - (pyg_graph.edge_weight / pyg_graph.edge_weight.max(dim=0).values)
+
+    # Remove additional graph attributes
+    del pyg_graph.created_date
+    del pyg_graph.created_with
+    del pyg_graph.crs
+    del pyg_graph.simplified
+
+    # Return Pytorch Geometric graph
+    return pyg_graph
+
+
 # Reset random seeds
 random_seed = 2674
 random.seed(random_seed)
@@ -49,8 +86,8 @@ else:
     print("Run on CPU")
 
 # Load model
-model_name = "gnnuf_model_v0-1"
-model = GAE(VanillaGCNEncoder(2, 128, 64))
+model_name = "gnnuf_model_v0-2"
+model = GAE(VanillaGCNEncoder(1, 128, 64))
 model.load_state_dict(torch.load(this_repo_directory + "/models/" + model_name + ".pt", map_location=device))
 model = model.to(device)
 model.eval()
@@ -60,7 +97,7 @@ leicester = ox.io.load_graphml(bulk_storage_directory + "/osmnx/raw_excluded/lei
 
 leicester_embs = {}
 neighbourhood_min_nodes = 8
-max_distance = 1000
+max_distance = 500
 count = 0
 
 for node in leicester.nodes:
@@ -72,13 +109,18 @@ for node in leicester.nodes:
     if len(node_ego_graph.nodes()) > neighbourhood_min_nodes:
 
         # Convert linegraph to Pytorch Geometric linegraph
-        node_pyglg = to_pyg_linegraph(node_ego_graph, max_distance)
-        node_pyglg = node_pyglg.to(device)
+        #node_pyg = to_pyg_linegraph(node_ego_graph, max_distance)
+        node_pyg = to_pyg_graph(node_ego_graph)
+        if node_pyg is not None:
+            node_pyg = node_pyg.to(device)
 
-        # Encode
-        node_pyglg_emb = model.encode(node_pyglg.x,node_pyglg.edge_index)
-        node_pyglg_emb_gmp = global_mean_pool(node_pyglg_emb, None)
-        leicester_embs[node] = np.squeeze(node_pyglg_emb_gmp.cpu().detach().numpy())
+            # Encode
+            node_pyg_emb = model.encode(node_pyg.x, node_pyg.edge_index, node_pyg.edge_weight)
+            node_pyg_emb_gmp = global_mean_pool(node_pyg_emb, None)
+            leicester_embs[node] = np.squeeze(node_pyg_emb_gmp.cpu().detach().numpy())
+
+        else:
+            print("PyG graph is None")
 
 # Save
 leicester_embs_df = pd.DataFrame.from_dict(leicester_embs, orient="index", columns=[f"EMB{i:03d}" for i in range(64)])

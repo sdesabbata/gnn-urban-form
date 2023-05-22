@@ -1,0 +1,20 @@
+--- Dataset ---
+
+dataset_neighbourhood_sample=0.01
+dataset_neighbourhood_min_nodes=8
+dataset_max_distance=500
+
+--- Model ---
+
+gnnuf_model_v0-2
+
+GAE(
+  (encoder): VanillaGCNEncoder(
+    (en_linear1): Linear(in_features=1, out_features=1, bias=True)
+    (en_conv1): GCNConv(1, 128)
+    (en_conv2): GCNConv(128, 128)
+    (en_linear2): Linear(in_features=128, out_features=64, bias=True)
+  )
+  (decoder): InnerProductDecoder()
+)
+

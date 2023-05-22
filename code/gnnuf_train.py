@@ -27,7 +27,7 @@ else:
 
 dataset_neighbourhood_sample = 0.01
 dataset_neighbourhood_min_nodes = 8
-dataset_max_distance = 1000
+dataset_max_distance = 500
 dataset_info_str = f"""{dataset_neighbourhood_sample=}
 {dataset_neighbourhood_min_nodes=}
 {dataset_max_distance=}"""
@@ -44,8 +44,8 @@ osmnx_loader_train = DataLoader(osmnx_dataset_train, batch_size=32, shuffle=True
 osmnx_loader_test = DataLoader(osmnx_dataset_test, batch_size=32, shuffle=True)
 
 # Define the model
-model_name = "gnnuf_model_v0-1"
-model = GAE(VanillaGCNEncoder(2, 128, 64))
+model_name = "gnnuf_model_v0-2"
+model = GAE(VanillaGCNEncoder(1, 128, 64))
 model = model.to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
 model_info_str = str(model)
@@ -60,14 +60,14 @@ for epoch in range(1, epochs + 1):
     epoch_loss = 0
 
     model.train()
-    for osmnx_linegraph in osmnx_loader_train:
+    for osmnx_graph in osmnx_loader_train:
         # Zero gradients
         optimizer.zero_grad()
         # Encode
-        osmnx_linegraph = osmnx_linegraph.to(device)
-        z = model.encode(osmnx_linegraph.x, osmnx_linegraph.edge_index)
+        osmnx_graph = osmnx_graph.to(device)
+        z = model.encode(osmnx_graph.x, osmnx_graph.edge_index, osmnx_graph.edge_weight)
         # Decode and calculate loss
-        loss = model.recon_loss(z, osmnx_linegraph.edge_index)
+        loss = model.recon_loss(z, osmnx_graph.edge_index)
         epoch_loss += float(loss)
         # Backpropagate
         loss.backward()
@@ -82,12 +82,12 @@ for epoch in range(1, epochs + 1):
 # Test
 best_model.eval()
 test_loss = 0
-for osmnx_linegraph in osmnx_loader_test:
+for osmnx_graph in osmnx_loader_test:
     # Encode
-    osmnx_linegraph = osmnx_linegraph.to(device)
-    z = best_model.encode(osmnx_linegraph.x, osmnx_linegraph.edge_index)
+    osmnx_graph = osmnx_graph.to(device)
+    z = best_model.encode(osmnx_graph.x, osmnx_graph.edge_index, osmnx_graph.edge_weight)
     # Decode and calculate loss
-    loss = best_model.recon_loss(z, osmnx_linegraph.edge_index)
+    loss = best_model.recon_loss(z, osmnx_graph.edge_index)
     test_loss += float(loss)
 test_loss /= len(osmnx_loader_test)
 print(f"Average test loss over {len(osmnx_loader_test)} batches: {test_loss}")
