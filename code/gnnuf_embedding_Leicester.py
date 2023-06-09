@@ -9,68 +9,12 @@ import osmnx as ox
 import torch
 from torch_geometric.nn import GAE
 from torch_geometric.utils import from_networkx
-# GNN models
+# GNN models and utils
 from gnnuf_models import *
+from gnnuf_utils import *
 # OS environment setup
 from local_directories import *
 
-# Convert linegraph to Pytorch Geometric linegraph
-def to_pyg_linegraph(ego_graph, max_distance):
-    # Extract lengths and slopes
-    seg_edges_length = nx.get_edge_attributes(ego_graph, "length")
-    seg_edges_grade_abs = nx.get_edge_attributes(ego_graph, "grade_abs")
-
-    # Create line graph
-    seg_linegraph = nx.line_graph(ego_graph)
-    # Add street lenghts and slopes as attribute x
-    for seglg_node in seg_linegraph.nodes():
-        seg_edge_length = seg_edges_length[(seglg_node[0], seglg_node[1], 0)]
-        seg_edge_grade_abs = seg_edges_grade_abs[(seglg_node[0], seglg_node[1], 0)]
-        seg_linegraph.nodes[seglg_node]["x"] = [
-            # Normalisation
-            (seg_edge_length / max_distance),
-            ((seg_edge_grade_abs / 0.05) if seg_edge_grade_abs < 0.05 else 1.0)
-        ]
-    del seglg_node
-
-    # Return Pytorch Geometric graph
-    return from_networkx(seg_linegraph)
-
-def to_pyg_graph(ego_graph):
-
-    # Remove all node attributes but street_count (node degree)
-    # which becomes x
-    for _, node_attr in ego_graph.nodes(data=True):
-        street_count = node_attr["street_count"]
-        for key in list(node_attr):
-            node_attr.pop(key, None)
-        node_attr["x"] = [float(street_count)]
-
-    # Remove all edge attributes but length
-    # which becomes edge_weight
-    for _, _, edge_attr in ego_graph.edges(data=True):
-        length = edge_attr["length"]
-        for key in list(edge_attr):
-            edge_attr.pop(key, None)
-        edge_attr["edge_weight"] = [float(length)]
-
-    # Create Pytorch Geometric graph
-    pyg_graph = from_networkx(ego_graph)
-
-    # Normalise x and edge_weight between 0 and 1
-    # pyg_graph.x.max(dim=0)
-    # pyg_graph.edge_weight.max(dim=0)
-    pyg_graph.x = (pyg_graph.x / pyg_graph.x.max(dim=0).values)
-    pyg_graph.edge_weight = 1 - (pyg_graph.edge_weight / pyg_graph.edge_weight.max(dim=0).values)
-
-    # Remove additional graph attributes
-    del pyg_graph.created_date
-    del pyg_graph.created_with
-    del pyg_graph.crs
-    del pyg_graph.simplified
-
-    # Return Pytorch Geometric graph
-    return pyg_graph
 
 
 # Reset random seeds
@@ -110,7 +54,16 @@ for node in leicester.nodes:
 
         # Convert linegraph to Pytorch Geometric linegraph
         #node_pyg = to_pyg_linegraph(node_ego_graph, max_distance)
-        node_pyg = to_pyg_graph(node_ego_graph)
+        node_pyg, node_index = to_pyg_graph(
+            node,
+            node_ego_graph,
+            node_attr_names=["street_count"],
+            node_attr_min_max={"street_count": (0, 4)},
+            node_attr_min_max_limit=True,
+            edge_attr_names=["length"],
+            edge_attr_min_max={"length": (0, 300)},
+            edge_attr_min_max_limit=True,
+        )
         if node_pyg is not None:
             node_pyg = node_pyg.to(device)
 
