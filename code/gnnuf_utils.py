@@ -24,7 +24,7 @@ def to_pyg_graph(
         ego_node_id,
         ego_node_graph,
         node_attr_names=["street_count"],
-        node_attr_min_max={"street_count": (0, 4)},
+        node_attr_min_max={"street_count": (1, 4)},
         node_attr_min_max_limit=True,
         edge_attr_names=["length"],
         edge_attr_min_max={"length": (0, 1000)},

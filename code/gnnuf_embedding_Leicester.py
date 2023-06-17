@@ -30,7 +30,7 @@ else:
     print("Run on CPU")
 
 # Load model
-model_name = "gnnuf_model_v0-2"
+model_name = "gnnuf_model_v0-3"
 model = GAE(VanillaGCNEncoder(1, 128, 64))
 model.load_state_dict(torch.load(this_repo_directory + "/models/" + model_name + ".pt", map_location=device))
 model = model.to(device)
@@ -58,10 +58,10 @@ for node in leicester.nodes:
             node,
             node_ego_graph,
             node_attr_names=["street_count"],
-            node_attr_min_max={"street_count": (0, 4)},
+            node_attr_min_max={"street_count": (1, 4)},
             node_attr_min_max_limit=True,
             edge_attr_names=["length"],
-            edge_attr_min_max={"length": (0, 300)},
+            edge_attr_min_max={"length": (50, 500)},
             edge_attr_min_max_limit=True,
         )
         if node_pyg is not None:
@@ -69,8 +69,9 @@ for node in leicester.nodes:
 
             # Encode
             node_pyg_emb = model.encode(node_pyg.x, node_pyg.edge_index, node_pyg.edge_weight)
-            node_pyg_emb_gmp = global_mean_pool(node_pyg_emb, None)
-            leicester_embs[node] = np.squeeze(node_pyg_emb_gmp.cpu().detach().numpy())
+            #node_pyg_emb_gmp = global_mean_pool(node_pyg_emb, None)
+            #leicester_embs[node] = np.squeeze(node_pyg_emb_gmp.cpu().detach().numpy())
+            leicester_embs[node] = node_pyg_emb.cpu().detach().numpy()[node_index, ]
 
         else:
             print("PyG graph is None")
