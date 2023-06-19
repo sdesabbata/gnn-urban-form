@@ -31,10 +31,15 @@ else:
 
 # Load model
 model_name = "gnnuf_model_v0-5"
+#model = GAE(VanillaGCNEncoder(1, 64, 2))
 model = GAE(GINEEncoder(1, 1, 64, 2))
 model.load_state_dict(torch.load(this_repo_directory + "/models/" + model_name + ".pt", map_location=device))
 model = model.to(device)
 model.eval()
+
+model_info_str = str(model)
+print(model_name)
+print(model_info_str)
 
 # Load Leciester's graph
 leicester = ox.io.load_graphml(bulk_storage_directory + "/osmnx/raw_excluded/leicester-1864.graphml")
@@ -44,7 +49,9 @@ neighbourhood_min_nodes = 8
 max_distance = 500
 count = 0
 
+print("Embedding nodes...")
 for node in leicester.nodes:
+    print(f"\t{node}")
 
     # Create the corresponding ego graph
     node_ego_graph = nx.generators.ego_graph(leicester, node, radius=max_distance, undirected=True, distance="length")

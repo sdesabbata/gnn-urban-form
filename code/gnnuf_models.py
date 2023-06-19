@@ -20,16 +20,14 @@ from torch_geometric.nn import GCNConv, GATConv, GINEConv
 class VanillaGCNEncoder(torch.nn.Module):
     def __init__(self, in_channels, gcn_channels, out_channels):
         super(VanillaGCNEncoder, self).__init__()
-        self.en_linear1 = torch.nn.Linear(in_channels, in_channels)
         self.en_conv1 = GCNConv(in_channels, gcn_channels)
         self.en_conv2 = GCNConv(gcn_channels, gcn_channels)
-        self.en_linear2 = torch.nn.Linear(gcn_channels, out_channels)
+        self.en_linear_out = torch.nn.Linear(gcn_channels, out_channels)
 
     def forward(self, x, edge_index, edge_weight):
-        # x = self.en_linear1(x).relu()
         x = self.en_conv1(x, edge_index, edge_weight).relu()
         x = self.en_conv2(x, edge_index, edge_weight).relu()
-        x = self.en_linear2(x)
+        x = self.en_linear_out(x)
         return torch.tanh(x)
 
 

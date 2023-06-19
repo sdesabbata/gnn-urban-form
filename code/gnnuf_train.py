@@ -44,19 +44,23 @@ osmnx_loader_train = DataLoader(osmnx_dataset_train, batch_size=32, shuffle=True
 osmnx_loader_test = DataLoader(osmnx_dataset_test, batch_size=32, shuffle=True)
 
 # Define the model
+#model_name = "gnnuf_model_v0-4"
+#model = GAE(VanillaGCNEncoder(1, 64, 2))
 model_name = "gnnuf_model_v0-5"
 model = GAE(GINEEncoder(1, 1, 64, 2))
 model = model.to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
+
 model_info_str = str(model)
+print(model_name)
 print(model_info_str)
 
 # Train
+training_log_str = ""
 epochs = 1000
 best_model = None
 best_loss = math.inf
 for epoch in range(1, epochs + 1):
-    print(f"{epoch=}")
     epoch_loss = 0
 
     model.train()
@@ -75,7 +79,9 @@ for epoch in range(1, epochs + 1):
         optimizer.step()
 
     epoch_loss /= len(osmnx_loader_train)
-    print(f"Average epoch loss over {len(osmnx_loader_train)} batches: {epoch_loss}")
+    epoch_loss_str = f"Epoch {epoch}, average loss over {len(osmnx_loader_train)} batches: {epoch_loss}"
+    training_log_str += epoch_loss_str + "\n"
+    print(epoch_loss_str)
     if epoch_loss < best_loss:
         best_model = copy.deepcopy(model)
 
@@ -90,7 +96,9 @@ for osmnx_graph in osmnx_loader_test:
     loss = best_model.recon_loss(z, osmnx_graph.edge_index)
     test_loss += float(loss)
 test_loss /= len(osmnx_loader_test)
-print(f"Average test loss over {len(osmnx_loader_test)} batches: {test_loss}")
+test_loss_str = f"Average test loss over {len(osmnx_loader_test)} batches: {test_loss}"
+training_log_str += "\n" + test_loss_str + "\n"
+print(test_loss_str)
 
 # Save model
 torch.save(best_model.state_dict(), this_repo_directory + "/models/" + model_name + ".pt")
@@ -100,3 +108,5 @@ with open(this_repo_directory + "/models/" + model_name + "__info.txt", 'wt', en
     file_info.write("--- Model ---\n\n")
     file_info.write(model_name+"\n\n")
     file_info.write(model_info_str+"\n\n")
+    file_info.write("--- Training ---\n\n")
+    file_info.write(training_log_str+"\n\n")
