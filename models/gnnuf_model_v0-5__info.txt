@@ -1,0 +1,27 @@
+--- Dataset ---
+
+dataset_neighbourhood_sample=0.01
+dataset_neighbourhood_min_nodes=8
+dataset_max_distance=500
+
+--- Model ---
+
+gnnuf_model_v0-5
+
+GAE(
+  (encoder): GINEEncoder(
+    (en_conv1): GINEConv(nn=Sequential(
+      (0): Linear(in_features=1, out_features=64, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=64, out_features=64, bias=True)
+    ))
+    (en_conv2): GINEConv(nn=Sequential(
+      (0): Linear(in_features=64, out_features=64, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=64, out_features=64, bias=True)
+    ))
+    (en_linear_post): Linear(in_features=64, out_features=2, bias=True)
+  )
+  (decoder): InnerProductDecoder()
+)
+

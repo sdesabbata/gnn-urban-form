@@ -30,8 +30,8 @@ else:
     print("Run on CPU")
 
 # Load model
-model_name = "gnnuf_model_v0-3"
-model = GAE(VanillaGCNEncoder(1, 128, 64))
+model_name = "gnnuf_model_v0-5"
+model = GAE(GINEEncoder(1, 1, 64, 2))
 model.load_state_dict(torch.load(this_repo_directory + "/models/" + model_name + ".pt", map_location=device))
 model = model.to(device)
 model.eval()
@@ -77,7 +77,7 @@ for node in leicester.nodes:
             print("PyG graph is None")
 
 # Save
-leicester_embs_df = pd.DataFrame.from_dict(leicester_embs, orient="index", columns=[f"EMB{i:03d}" for i in range(64)])
+leicester_embs_df = pd.DataFrame.from_dict(leicester_embs, orient="index", columns=[f"EMB{i:03d}" for i in range(2)])
 leicester_embs_df = leicester_embs_df.reset_index()
 leicester_embs_df = leicester_embs_df.rename(columns={"index": "osmnx_node_id"})
 leicester_embs_df.to_csv(this_repo_directory + "/data/leicester-1864_emb_" + model_name + ".csv", index=False)

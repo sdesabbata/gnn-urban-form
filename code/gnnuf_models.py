@@ -7,7 +7,7 @@ from typing import Optional, Tuple
 import warnings
 
 import torch
-from torch_geometric.nn import GCNConv, GATConv, global_mean_pool, InnerProductDecoder
+from torch_geometric.nn import GCNConv, GATConv, GINEConv
 
 
 # ------------------------ #
@@ -32,6 +32,38 @@ class VanillaGCNEncoder(torch.nn.Module):
         x = self.en_linear2(x)
         return torch.tanh(x)
 
+
+# ----------------- #
+#   GINE encoder    #
+# ----------------- #
+
+# Based on
+# https://github.com/pyg-team/pytorch_geometric/blob/11513fdde087d001e15c2eda5ff3c07c2240e1c0/examples/graph_gps.py
+
+class GINEEncoder(torch.nn.Module):
+    def __init__(self, in_channels, edge_dim, gcn_channels, out_channels):
+        super(GINEEncoder, self).__init__()
+
+        nn_in = torch.nn.Sequential(
+            torch.nn.Linear(in_channels, gcn_channels),
+            torch.nn.ReLU(),
+            torch.nn.Linear(gcn_channels, gcn_channels),
+        )
+        nn_conv = torch.nn.Sequential(
+            torch.nn.Linear(gcn_channels, gcn_channels),
+            torch.nn.ReLU(),
+            torch.nn.Linear(gcn_channels, gcn_channels),
+        )
+
+        self.en_conv1 = GINEConv(nn_in, edge_dim=edge_dim)
+        self.en_conv2 = GINEConv(nn_conv, edge_dim=edge_dim)
+        self.en_linear_post = torch.nn.Linear(gcn_channels, out_channels)
+
+    def forward(self, x, edge_index, edge_weight):
+        x = self.en_conv1(x, edge_index, edge_weight).relu()
+        x = self.en_conv2(x, edge_index, edge_weight).relu()
+        x = self.en_linear_post(x)
+        return torch.tanh(x)
 
 # ---------------------- #
 #   GAT-based encoder    #

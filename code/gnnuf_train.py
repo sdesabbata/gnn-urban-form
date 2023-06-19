@@ -44,8 +44,8 @@ osmnx_loader_train = DataLoader(osmnx_dataset_train, batch_size=32, shuffle=True
 osmnx_loader_test = DataLoader(osmnx_dataset_test, batch_size=32, shuffle=True)
 
 # Define the model
-model_name = "gnnuf_model_v0-3"
-model = GAE(VanillaGCNEncoder(1, 128, 64))
+model_name = "gnnuf_model_v0-5"
+model = GAE(GINEEncoder(1, 1, 64, 2))
 model = model.to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
 model_info_str = str(model)
