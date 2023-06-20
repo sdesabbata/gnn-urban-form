@@ -13,7 +13,7 @@ leicester = ox.io.load_graphml(bulk_storage_directory + "/osmnx/raw_excluded/lei
 
 leicester_basic_stats_df = None
 neighbourhood_min_nodes = 8
-max_distance = 1000
+max_distance = 500
 
 
 def get_basic_stats(node):
@@ -39,4 +39,4 @@ if __name__ == '__main__':
             leicester_basic_stats_df = pd.concat([leicester_basic_stats_df, pd.DataFrame.from_dict([basic_stats])])
 
     # Save
-    leicester_basic_stats_df.to_csv(this_repo_directory + "/data/leicester-1864_basic_stats.csv", index=False)
+    leicester_basic_stats_df.to_csv(this_repo_directory + "/data/leicester-1864_basic_stats_dist500.csv", index=False)
