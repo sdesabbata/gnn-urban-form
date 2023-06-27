@@ -1,4 +1,4 @@
-# GNN urban form
+# Exploring urban form through graph neural networks
 
 - Exploratory analyses of the results obtained for Leicester
   - [node embeddings](gnnuf_exploratory_analysis_v0-5-emb_Leicester.html)

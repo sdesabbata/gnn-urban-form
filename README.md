@@ -1,4 +1,4 @@
-# Analysing urban form through graph neural networks
+# Exploring urban form through graph neural networks
 
 Aim: to analyse urban form using graph neural networks
 
