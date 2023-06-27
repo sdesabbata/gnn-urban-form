@@ -162,6 +162,7 @@ cython_debug/
 # Storage
 /storage
 /qsub
+analysis/local_directories.py
 code/local_directories.py
 .DS_Store
 */.DS_Store

@@ -1,0 +1,48 @@
+---
+title: "Correlation analysis"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    embed-resources: true
+    toc: true
+    toc-depth: 4
+---
+
+## Libraries
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(skimr)
+library(GGally)
+```
+
+## Data
+
+```{r}
+#| warning: false
+#| message: false
+
+leic_emb <- 
+  read_csv("../data/leicester-1864_emb_gnnuf_model_v0-5_with-node-and-basic-stats.csv")
+
+leic_emb %>% 
+  skim()
+```
+
+## Correlations
+
+```{r}
+#| fig-width: 16
+#| fig-height: 16
+
+leic_emb %>%
+  select(-osmnx_node_id) %>%
+  ggpairs(
+    upper = list(continuous = wrap(ggally_cor, method = "kendall")),
+    lower = list(continuous = wrap("points", alpha = 0.3, size=0.1))
+  )
+```
+
