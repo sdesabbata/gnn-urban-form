@@ -71,4 +71,4 @@ if __name__ == "__main__":
     # Save
     leicester_node_stats_df[
         ["node_id", "closeness_networkwide", "betweenness_networkwide", "closeness_egograph", "betweenness_egograph"]
-    ].to_csv(this_repo_directory + "/data/leicester-1864_stats_node_wiith_egograph_dist500.csv", index=False)
+    ].to_csv(this_repo_directory + "/data/leicester-1864_stats_node_centrality_with_egograph_dist500.csv", index=False)
