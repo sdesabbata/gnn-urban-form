@@ -26,7 +26,7 @@ library(GGally)
 #| message: false
 
 leic_emb <- 
-  read_csv("../data/leicester-1864_emb_gnnuf_model_v0-5_with-node-and-basic-stats.csv")
+  read_csv("../data/leicester-1864_emb_gnnuf_model_v0-5_incl-pool-with-stats.csv")
 
 leic_emb %>% 
   skim()
@@ -39,7 +39,11 @@ leic_emb %>%
 #| fig-height: 16
 
 leic_emb %>%
-  select(-osmnx_node_id) %>%
+  select(-osmnx_node_id) %>% 
+  relocate(EMB000, .after = last_col()) %>%
+  relocate(EMB001, .after = last_col()) %>%
+  relocate(EMB000pooled, .after = last_col()) %>%
+  relocate(EMB001pooled, .after = last_col()) %>%
   ggpairs(
     upper = list(continuous = wrap(ggally_cor, method = "kendall")),
     lower = list(continuous = wrap("points", alpha = 0.3, size=0.1))
