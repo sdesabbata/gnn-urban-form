@@ -15,6 +15,7 @@ neighbourhood_min_nodes = 8
 max_distance = 500
 
 def get_node_stats(node):
+    this_node_stats_to_return = None
     # Create the corresponding ego graph
     node_ego_graph = nx.generators.ego_graph(leicester, node, radius=max_distance, undirected=True, distance="length")
     # Only keep the sampled area if it has a minimum number of nodes
@@ -30,9 +31,10 @@ def get_node_stats(node):
             orient="index",
             columns=["betweenness_egograph"])
         # Join and return node's row
-        node_stats = node_ego_graph_closeness_centrality.join(node_ego_graph_betweenness_centrality)
-        node_stats["node_id"] = node_stats.index
-        return node_stats.filter(items=[node], axis=0)
+        this_node_stats = node_ego_graph_closeness_centrality.join(node_ego_graph_betweenness_centrality)
+        this_node_stats["node_id"] = this_node_stats.index
+        this_node_stats_to_return = this_node_stats.filter(items=[node], axis=0)
+    return this_node_stats_to_return
 
 
 if __name__ == "__main__":
@@ -54,13 +56,27 @@ if __name__ == "__main__":
     leicester_betweenness_centrality["node_id"] = leicester_betweenness_centrality.index
 
     # Calculate ego graph stats
-    for node in leicester.nodes:
-        print(node)
-        node_stats = get_node_stats(node)
-        if leicester_node_stats_df is None:
-            leicester_node_stats_df = node_stats
-        else:
-            leicester_node_stats_df = pd.concat([leicester_node_stats_df, node_stats])
+
+    # for node in leicester.nodes:
+    #     print(node)
+    #     node_stats = get_node_stats(node)
+    #     if leicester_node_stats_df is None:
+    #         leicester_node_stats_df = node_stats
+    #     else:
+    #         leicester_node_stats_df = pd.concat([leicester_node_stats_df, node_stats])
+
+    p = Pool(processes=25)
+    data = p.map(get_node_stats, [node for node in leicester.nodes])
+    p.close()
+    p.join()
+
+    # Calculate base stats
+    for node_stats in data:
+        if node_stats is not None:
+            if leicester_node_stats_df is None:
+                leicester_node_stats_df = node_stats
+            else:
+                leicester_node_stats_df = pd.concat([leicester_node_stats_df, node_stats])
 
     leicester_node_stats_df = leicester_node_stats_df.merge(
         leicester_closeness_centrality, on="node_id"
