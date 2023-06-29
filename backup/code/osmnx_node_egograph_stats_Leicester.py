@@ -25,12 +25,12 @@ def get_node_stats(node):
     if len(node_ego_graph.nodes()) > neighbourhood_min_nodes:
         # Calculate closeness centrality
         node_ego_graph_closeness_centrality = pd.DataFrame.from_dict(
-            nx.closeness_centrality(leicester),
+            nx.closeness_centrality(node_ego_graph),
             orient='index',
             columns=['closeness_egograph'])
         # Calculate betweenness centrality
         node_ego_graph_betweenness_centrality = pd.DataFrame.from_dict(
-            nx.betweenness_centrality(leicester),
+            nx.betweenness_centrality(node_ego_graph),
             orient='index',
             columns=['betweenness_egograph'])
         # Join and return node's row
@@ -46,10 +46,10 @@ if __name__ == '__main__':
     leicester_node_stats_df = get_node_stats(node_id)
     # Save
     if leicester_node_stats_df is not None:
-        leicester_node_stats_df.to_csv(this_repo_directory + "/storage/leicester-1864_node_egograph_stats_dist500/leicester-1864_node_stats_dist500__node_id_"+ str(node_id) +".csv", index=False)
-        # to then be combined to leicester-1864_node_egograph_stats_dist500.csvleicester-1864_node_egograph_stats_dist500.csv
+        leicester_node_stats_df.to_csv(this_repo_directory + "/storage/leicester-1864_node_egograph_stats_dist500/leicester-1864_node_egograph_stats_dist500__node_id_"+ str(node_id) +".csv", index=False)
+        # to then be combined to leicester-1864_node_egograph_stats_dist500.csv
         # using
-        # awk FNR==1 leicester-1864_node_egograph_stats_dist500/leicester-1864_node_stats_dist500__node_id_10023637.csv > leicester-1864_node_egograph_stats_dist500.csv
+        # awk FNR==1 leicester-1864_node_egograph_stats_dist500/leicester-1864_node_egograph_stats_dist500__node_id_10023637.csv > leicester-1864_node_egograph_stats_dist500.csv
         # awk FNR!=1 leicester-1864_node_egograph_stats_dist500/* >> leicester-1864_node_egograph_stats_dist500.csv
     else:
         print("Node was excluded")
