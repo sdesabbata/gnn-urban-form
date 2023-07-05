@@ -1,3 +1,6 @@
+title: Exploring urban form through graph neural networks
+logo: images/leicester-1864_emb_gnnuf_model_v0-5_map-bivariate.png
+show_downloads: true
 theme: jekyll-theme-minimal
 plugins:
   - jemoji
