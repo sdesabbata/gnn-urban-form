@@ -10,7 +10,7 @@ Our preliminary results (see [results and supplementary materials](#results-supp
 
 All the code used for this project is available on [our GitHub repo](https://github.com/sdesabbata/gnn-urban-form). The conda environment used for the project is described in [this yml file](https://github.com/sdesabbata/gnn-urban-form/blob/main/utils/conda-env_gnn-urban-form.yml).
 
-We used the [Global Urban Street Networks](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) data made available by [Geoff Boeing](https://geoffboeing.com/), which include simplified street networks of 138 cities in the UK derived from OpenStreetMap. 
+We used the [Global Urban Street Networks](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) data made available by [Geoff Boeing](https://geoffboeing.com/), which include simplified street networks of 138 cities in the UK derived from [OpenStreetMap](https://www.openstreetmap.org/#map=12/52.6334/-1.1076). 
 
 We developed a graph autoencoder model using [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/). The encoder (see [`gnnuf_models.py`](https://github.com/sdesabbata/gnn-urban-form/blob/main/code/gnnuf_models.py)) is composed of three layers: two layers using modified graph isomorphism operators designed to incorporate the edge attributes in the aggregation step of the convolution, using 64 hidden features; and a linear layer, which reduces the 64 hidden features to 2 embeddings.  The decoder is a standard inner product operator. 
 
