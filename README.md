@@ -9,11 +9,33 @@ Our preliminary results (see [results and supplementary materials](#results-supp
 <br clear="left"/>
 
 
-## Methods and code
 
-All the code used for this project is available on [our GitHub repo](https://github.com/sdesabbata/gnn-urban-form). The conda environment used for the project is described in [this yml file](https://github.com/sdesabbata/gnn-urban-form/blob/main/utils/conda-env_gnn-urban-form.yml).
+## Data
 
 We used the [Global Urban Street Networks](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) data made available by [Geoff Boeing](https://geoffboeing.com/), which include simplified street networks of 138 cities in the UK derived from OpenStreetMap. 
+
+Create `storage` as a subfolder of the main directory, which will be used to store large data files
+not to be syncronised with the GitHub repo. Download the 
+[Global Urban Street Networks GraphML](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/KA5HJ3) 
+files of interest into the `storage` and unzip them.
+
+```shell
+mkdir storage
+mkdir storage/osmnx
+mkdir storage/osmnx/zip
+mkdir storage/osmnx/graphml
+wget -O storage/osmnx/zip/united_kingdom-GBR_graphml.zip https://dataverse.harvard.edu/api/access/datafile/4287573
+unzip storage/osmnx/zip/united_kingdom-GBR_graphml.zip -d storage/osmnx/graphml
+```
+
+
+## Environment
+
+The conda environment used for the project is described in [this yml file](https://github.com/sdesabbata/gnn-urban-form/blob/main/utils/conda-env_gnn-urban-form.yml) (please see [this README file](https://github.com/sdesabbata/gnn-urban-form/tree/main/utils#readme) as well).
+
+
+
+## Methods and code
 
 We developed a graph autoencoder model using [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/). The encoder (see [`gnnuf_models.py`](https://github.com/sdesabbata/gnn-urban-form/blob/main/code/gnnuf_models.py)) is composed of three layers: two layers using modified graph isomorphism operators designed to incorporate the edge attributes in the aggregation step of the convolution, using 64 hidden features; and a linear layer, which reduces the 64 hidden features to 2 embeddings.  The decoder is a standard inner product operator. 
 
@@ -22,6 +44,7 @@ To train our model (see [`gnnuf_train.py`](https://github.com/sdesabbata/gnn-urb
 To evaluate the model, we used it to generate embeddings for all street junctions in Leicester -- see [`gnnuf_embedding_Leicester.py`](https://github.com/sdesabbata/gnn-urban-form/blob/main/code/gnnuf_embedding_Leicester.py) for node embeddings and [`gnnuf_embedding_pool_Leicester.py`](https://github.com/sdesabbata/gnn-urban-form/blob/main/code/gnnuf_embedding_pool_Leicester.py) for embeddings pooled at node ego-graph level. 
 
 In our preliminary analysis (see [results and supplementary materials](#results-supplementary) below), we qualitatively explore the expressiveness of the model through a series of plots and maps, and we quantitatively compare the embeddings with closeness and betweenness centrality, both based on the whole city graph and based on the node's ego-graph (see [`osmnx_stats_node_centrality_with_egograph_Leicester.py`](https://github.com/sdesabbata/gnn-urban-form/blob/main/code/osmnx_stats_node_centrality_with_egograph_Leicester.py)), as well as basic statistics (as provided by OSMnx) for each node's ego-graph (see [`osmnx_stats_egograph_basic_Leicester.py`](https://github.com/sdesabbata/gnn-urban-form/blob/main/code/osmnx_stats_egograph_basic_Leicester.py)).
+
 
 
 
