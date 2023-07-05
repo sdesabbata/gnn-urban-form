@@ -2,12 +2,16 @@
 
 Graph theory has long provided the basis for the computational modelling of urban flows and networks and, thus, for the study of urban form. The development of graph-convolutional neural networks offers the opportunity to explore new applications of deep learning approaches in urban studies. In this project, we explore the use of an unsupervised graph representation learning framework for analysing urban street networks (see [methods and code](#methods-code) below). 
 
-Our preliminary results (see [results and supplementary materials](#results-supplementary) below) illustrate how a model trained on a 1% random sample of street junctions in the UK can be used to explore the urban form of the city of Leicester, generating embeddings which are similar but distinct from classic metrics and able to capture key aspects such as the shift from urban to suburban structures. 
 
 <p align="center">
-  <img height="300" src="docs/images/leicester-1864_emb_gnnuf_model_v0-5_map-bivariate.png"/>
+
+<img width="400px" align="left" src="docs/images/leicester-1864_emb_gnnuf_model_v0-5_map-bivariate.png"/>
+
+Our preliminary results (see [results and supplementary materials](#results-supplementary) below) illustrate how a model trained on a 1% random sample of street junctions in the UK can be used to explore the urban form of the city of Leicester, generating embeddings which are similar but distinct from classic metrics and able to capture key aspects such as the shift from urban to suburban structures. 
+
 </p>
 
+<br clear="left"/>
 
 
 ## Methods and code
