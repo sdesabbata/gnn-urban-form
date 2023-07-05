@@ -4,7 +4,11 @@ Graph theory has long provided the basis for the computational modelling of urba
 
 Our preliminary results (see [results and supplementary materials](#results-supplementary) below) illustrate how a model trained on a 1% random sample of street junctions in the UK can be used to explore the urban form of the city of Leicester, generating embeddings which are similar but distinct from classic metrics and able to capture key aspects such as the shift from urban to suburban structures. 
 
-![Bivariate map illustrating the embeddings obtained for street junctions in Leicester](docs/images/leicester-1864_emb_gnnuf_model_v0-5_map-bivariate.png)
+<p align="center">
+
+![Bivariate map illustrating the embeddings obtained for street junctions in Leicester](docs/images/leicester-1864_emb_gnnuf_model_v0-5_map-bivariate.png =250x250)
+
+</p>
 
 
 
