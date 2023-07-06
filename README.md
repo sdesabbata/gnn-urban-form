@@ -1,3 +1,5 @@
+Stefano De Sabbata, Andrea Ballatore, Pengyuan Liu and Nicholas J. Tate
+
 # Exploring urban form through graph neural networks
 
 <img width="400px" align="right" src="docs/images/leicester-1864_emb_gnnuf_model_v0-5_map-bivariate.png"/>
@@ -12,7 +14,7 @@ Our preliminary results (see [results and supplementary materials](#results-supp
 
 ## Data
 
-We used the [Global Urban Street Networks](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) data made available by [Geoff Boeing](https://geoffboeing.com/), which include simplified street networks of 138 cities in the UK derived from OpenStreetMap. 
+We used the [Global Urban Street Networks](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) data made available by [Geoff Boeing](https://geoffboeing.com/), which include simplified street networks of 138 cities in the UK derived from [OpenStreetMap](https://www.openstreetmap.org/#map=12/52.6334/-1.1076). 
 
 Create `storage` as a subfolder of the main directory, which will be used to store large data files
 not to be syncronised with the GitHub repo. Download the 
@@ -62,3 +64,9 @@ The pages below present the main results obtained from our analysis as a jupyter
 Our preliminary results illustrate the potential of GNNs to develop an unsupervised framework to capture and explore urban form, but a more thorough exploration of the design space is necessary.
 
 In our future work, we aim to expand the use of our framework in three aspects. First, we aim to explore the adaptability and usefulness of our approach through space, time and scale, testing how models behave when using a continental or global dataset for training, including past street networks  or limiting the training to cities of the same scale as the target one(s). Second, we will explore how to encode places beyond junctions, including buildings or points of interest. Third, we will explore how to encode flows beyond networks, including commuting or communications.
+
+
+
+## Acknowledgements
+
+The authors acknowledge the work of [OpenStreetMap](https://www.openstreetmap.org/#map=12/52.6334/-1.1076) contributors and [Geoff Boeing](https://geoffboeing.com/) in creating the [data](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) that made this work possible. This research used the ALICE High Performance Computing Facility at the University of Leicester.

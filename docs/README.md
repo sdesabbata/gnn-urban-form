@@ -40,3 +40,9 @@ The pages below present the main results obtained from our analysis as a jupyter
 Our preliminary results illustrate the potential of GNNs to develop an unsupervised framework to capture and explore urban form, but a more thorough exploration of the design space is necessary.
 
 In our future work, we aim to expand the use of our framework in three aspects. First, we aim to explore the adaptability and usefulness of our approach through space, time and scale, testing how models behave when using a continental or global dataset for training, including past street networks  or limiting the training to cities of the same scale as the target one(s). Second, we will explore how to encode places beyond junctions, including buildings or points of interest. Third, we will explore how to encode flows beyond networks, including commuting or communications.
+
+
+
+## Acknowledgements
+
+The authors acknowledge the work of [OpenStreetMap](https://www.openstreetmap.org/#map=12/52.6334/-1.1076) contributors and [Geoff Boeing](https://geoffboeing.com/) in creating the [data](https://dataverse.harvard.edu/dataverse/global-urban-street-networks/) that made this work possible. This research used the ALICE High Performance Computing Facility at the University of Leicester.
