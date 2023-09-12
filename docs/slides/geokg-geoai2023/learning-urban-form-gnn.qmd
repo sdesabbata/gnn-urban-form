@@ -22,6 +22,8 @@ bibliography: biblography-geokg-geoai2023.bib
 citations-hover: true
 ---
 
+
+
 ## Urban form (and function)
 
 @ARRIBASBEL2022102641 define urban form as *what a space "looks like"* compared to urban function, which focuses on *"what it is used for"*.
@@ -97,7 +99,6 @@ Unsupervised learning of *nodes representations*
 
 
 
-
 ## Graph AutoEncoder (some details) {.smaller}
 
 
@@ -159,19 +160,23 @@ Leicester (UK)
 :::
 ::::
 
+
+
 ## Results
 
 ::: {layout="[16,-1,16]" layout-valign="center"}
-![](images/gnnuf_ea_v0-5-emb_Leicester_scatter-bivar.png)
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-5-emb_Leicester_scatter-bivar.png)
 
 ![](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-bivar.png)
+
 :::
+
 
 
 ## Results (embedding clustering)
 
 ::: {layout="[16,-1,16]" layout-valign="center"}
-![](images/gnnuf_ea_v0-5-emb_Leicester_scatter-clust.png)
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-5-emb_Leicester_scatter-clust.png)
 
 ![](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-clust.png)
 :::
@@ -181,7 +186,7 @@ Leicester (UK)
 ## Results (ego-graph pooled)
 
 ::: {layout="[16,-1,16]" layout-valign="center"}
-![](images/gnnuf_ea_v0-5-emb-pooled_Leicester_scatter-bivar.png)
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-5-emb-pooled_Leicester_scatter-bivar.png)
 
 ![](images/gnnuf_ea_v0-5-emb-pooled_Leicester_streetmap-bivar.png)
 :::
@@ -255,7 +260,7 @@ GNNs can be used as an unsupervised framework to explore urban form
 
 [sdesabbata.github.io/gnn-urban-form](https://sdesabbata.github.io/gnn-urban-form/)
 
-![](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-bivar.png)
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-bivar.png){width=80%}
 
 :::
 ::: {.column width="5%"}
