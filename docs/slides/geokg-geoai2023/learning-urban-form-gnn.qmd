@@ -1,0 +1,287 @@
+---
+title: "Learning urban form through unsupervised graph-convolutional neural networks"
+author: "<br/><b>Stef De Sabbata</b>, Andrea Ballatore,<br/> Pengyuan Liu and Nicholas J. Tate<br/><br/><span style=\"font-size: 30px;\"><a href=\"https://sdesabbata.github.io/gnn-urban-form/\">sdesabbata.github.io/gnn-urban-form</a></span>"
+format: 
+  revealjs:
+    embed-resources: true
+    theme: uol-readable.scss
+title-slide-attributes:
+    data-background-color: "#570F1A"
+    data-color: "#FFFFFF"
+include-in-header:
+  - text: |
+      <style>
+      #title-slide .title {
+        font-size: 60px;
+      }
+      #title-slide .author {
+        font-size: 40px;
+      }
+      </style>
+bibliography: biblography-geokg-geoai2023.bib
+citations-hover: true
+---
+
+## Urban form (and function)
+
+@ARRIBASBEL2022102641 define urban form as *what a space "looks like"* compared to urban function, which focuses on *"what it is used for"*.
+
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="50%"}
+
+::: {.fragment .fade-left}
+**Urban form**
+
+- the analysis of urban infrastructure
+  - street network connectivity and structure
+  - building structure and arrangement
+:::
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment .fade-left}
+**Urban function**
+
+- the study of urban activities and agents
+  - land use
+  - presence and diversity of points of interest
+  - accessibility measures
+:::
+
+:::
+::::
+
+
+
+## Graph neural networks {.smaller}
+
+::: {style="line-height: 100%;"}
+Conceptually akin to Convolutional Neural Networks (CNNs) used in image processing
+
+- apply **convolutional operations to graph** structures within a deep learning process
+- @kipf2017semisupervised defined a graph convolutional network (GCN) layer for a node $v$ with weights ($W^{(l)}$), activation function ($\sigma$)  as
+
+$$
+h_{v}^{(l)} = \sigma \left( W^{(l)} \sum_{u \in N(v)} \frac{1}{|N(v)|} h_{u}^{(l-1)}  \right)
+$$
+
+- @NIPS2017_5dd9db5e then proposed a generalisation
+
+$$
+h_{v}^{(l)} = \sigma \left( W^{(l)} \ {\scriptstyle COMBINE} \left( h_{v}^{l-1}, {\scriptstyle AGGREGATE} \left( \bigl\{ h_{u}^{(l-1)}, \forall u \in N(v) \bigl\} \right) \right) \right)
+$$
+:::
+
+<br/>
+
+::: {.fragment .fade-up}
+**&#9658; Research Question:** Can we use them to study urban form (and function)?
+:::
+
+
+
+## Graph AutoEncoder {.smaller}
+
+Unsupervised learning of *nodes representations* 
+
+::: {style="line-height: 100%;"}
+- by optimising a dimensionality reduction model
+- **encoder**: uses graph-convolution and linear layers
+- **decoder**: commonly an inner product of the embeddings
+- loss: binary cross entropy for positive and negative sampled edges
+:::
+
+![](images/gnnuf_v0-5_model_shorter-drawio-01.png)
+
+
+
+
+## Graph AutoEncoder (some details) {.smaller}
+
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="50%"}
+
+**Pre-processing**
+
+- random 1% of nodes from 137 UK cities
+- an ego-graph for each node
+  - 500m network distance (min 8 nodes)
+  - junctions as nodes
+    - num. of segments as an attribute
+    - bounded min-max (1 to 4)
+  - street segments as edges
+    - length as an edge attribute
+    - bounded min-max (50m to 500m)
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment .fade-left}
+**Model**
+
+- [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/index.html)
+- three-layer encoder
+  - two [GINE](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.conv.GINEConv.html#torch_geometric.nn.conv.GINEConv) [@huStrategiesPretrainingGraph2020] layers 
+    - 64 hidden features
+  - one linear layer
+    - 64 features to 2 embeddings
+- trained for 1000 epochs 
+  - AdamW optimiser 
+  - 0.0001 learning rate 
+  - random 80% of ego-graphs
+- tested on remaining 20%
+:::
+
+:::
+::::
+
+
+
+## Case study {.smaller}
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="25%"}
+
+Leicester (UK)
+
+- Population: 368,600  at the [2021 UK Census](https://www.ons.gov.uk/visualisations/censuspopulationchange/E06000016/), increased by 11.8% since 2011
+- Minority-majority city: 43.4% identify as Asian, 33.2% are White British
+- Area: about 73 km2 (28 sq mi)
+- Simplified [OSM](https://www.openstreetmap.org/#map=12/52.6272/-1.1179) street network data by @DVN/KA5HJ3_2020
+
+:::
+::: {.column width="75%"}
+
+![](images/Leicester-spatial-signatures.png)
+:::
+::::
+
+## Results
+
+::: {layout="[16,-1,16]" layout-valign="center"}
+![](images/gnnuf_ea_v0-5-emb_Leicester_scatter-bivar.png)
+
+![](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-bivar.png)
+:::
+
+
+## Results (embedding clustering)
+
+::: {layout="[16,-1,16]" layout-valign="center"}
+![](images/gnnuf_ea_v0-5-emb_Leicester_scatter-clust.png)
+
+![](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-clust.png)
+:::
+
+
+
+## Results (ego-graph pooled)
+
+::: {layout="[16,-1,16]" layout-valign="center"}
+![](images/gnnuf_ea_v0-5-emb-pooled_Leicester_scatter-bivar.png)
+
+![](images/gnnuf_ea_v0-5-emb-pooled_Leicester_streetmap-bivar.png)
+:::
+
+
+
+## Baselines comparison
+
+::: {style="font-size: 45%;"}
+
+|              |                                   | Node embeddings |                  | Ego-graph emb. |                  |
+|--------------|-----------------------------------|-----------------|------------------|----------------|------------------|
+|              | Measure                           | Fist dimension  | Second dimension | Fist dimension | Second dimension |
+| Node in city |                                   |                 |                  |                |                  |
+|              | closeness centrality              | 0.262***        | -0.194***        | 0.365***       | -0.337***        |
+|              | betweenness centrality            | 0.242***        | -0.026***        | 0.117***       | -0.155***        |
+| Ego-graph    |                                   |                 |                  |                |                  |
+|              | count of nodes                    | -0.033***       | -0.104***        | -0.138***      | -0.226***        |
+|              | count of edges                    | 0.013*          | -0.101***        | -0.068***      | -0.213***        |
+|              | average node degree               | 0.261***        | 0.005            | 0.377***       | 0.037***         |
+|              | total edge length                 | 0.210***        | -0.131***        | 0.208***       | -0.246***        |
+|              | average edge length               | 0.370***        | -0.045***        | 0.580***       | -0.022***        |
+|              | average count of streets per node | 0.280***        | -0.232***        | 0.431***       | -0.421***        |
+|              | count of intersections            | 0.047***        | -0.144***        | -0.019***      | -0.302***        |
+|              | total street segment length       | 0.192***        | -0.163***        | 0.190***       | -0.315***        |
+|              | count of street segments          | 0.009           | -0.134***        | -0.070***      | -0.285***        |
+|              | average street segment length     | 0.365***        | -0.044***        | 0.589***       | -0.015*          |
+|              | average street circuity           | -0.028***       | 0.131***         | -0.066***      | 0.225***         |
+
+:::
+
+
+
+## Conclusions
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="50%"}
+
+GNNs can be used as an unsupervised framework to explore urban form
+
+- merely a first exploratory study
+  - the design space is vast
+  - a systematic approach is necessary
+- testing can be particularly challenging 
+  - no *"ground-truth"* labels
+
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="45%"}
+
+::: {.fragment .fade-left}
+**Future work**
+
+- adaptability and usefulness through **space, time and scale**
+- encoding **places** beyond junctions, including buildings or points of interest
+- encoding **flows** beyond networks, including commuting or communications.
+:::
+
+:::
+::::
+
+
+
+## Thank you for your attention {.smaller}
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="45%"}
+
+**Check out our GitHub repo**
+
+[sdesabbata.github.io/gnn-urban-form](https://sdesabbata.github.io/gnn-urban-form/)
+
+![](images/gnnuf_ea_v0-5-emb_Leicester_streetmap-bivar.png)
+
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="45%"}
+
+
+**Stef De Sabbata**<br/>
+University of Leicester, UK<br/>
+s.desabbata@leicester.ac.uk<br/>
+<br/>
+Andrea Ballatore<br/>
+King's College London, UK<br/>
+andrea.ballatore@kcl.ac.uk<br/>
+<br/>
+Pengyuan Liu<br/>
+Nanjing University of Information Science and Technology, China<br/>
+003732@nuist.edu.cn<br/>
+<br/>
+Nicholas J. Tate<br/>
+University of Leicester, UK<br/>
+njt9@leicester.ac.uk
+
+:::
+::::
+
+
+
+## References {.smaller}
