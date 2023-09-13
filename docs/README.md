@@ -5,9 +5,10 @@ Graph theory has long provided the basis for the computational modelling of urba
 Our preliminary results (see [results and supplementary materials](#results-supplementary) below) illustrate how a model trained on a 1% random sample of street junctions in the UK can be used to explore the urban form of the city of Leicester, generating embeddings which are similar but distinct from classic metrics and able to capture key aspects such as the shift from urban to suburban structures. 
 
 
-## Slides
+We presented this work at the [2nd International Workshop on Geospatial Knowledge Graphs and GeoAI: Methods, Models, and Resources](https://geokg-geoai2023.github.io/) ([GIScience 2023](https://giscience2023.github.io/), September 12th, 2023, Leeds, UK).
 
-The slides for our presentation at the [2nd International Workshop on Geospatial Knowledge Graphs and GeoAI: Methods, Models, and Resources](https://geokg-geoai2023.github.io/) (12th September, 2023, Leeds, UK) can be found [here](https://sdesabbata.github.io/gnn-urban-form/slides/geokg-geoai2023/learning-urban-form-gnn.html).
+- [paper](https://github.com/sdesabbata/gnn-urban-form/blob/main/papers/GeoKG-GeoAI_at_GIScience2023/learning-urban-form-through-unsupervised-GNN_DeSabbata-et-al_geokg-geoai2023_camera-ready.pdf)
+- [presentation slides](https://sdesabbata.github.io/gnn-urban-form/slides/geokg-geoai2023/learning-urban-form-gnn.html).
 
 
 ## Data 
