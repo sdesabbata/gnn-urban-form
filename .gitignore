@@ -160,8 +160,9 @@ cython_debug/
 #.idea/
 
 # Storage
-/storage
-/qsub
+storage/
+qsub/
+sbatch/
 analysis/local_directories.py
 code/local_directories.py
 .DS_Store
