@@ -21,3 +21,4 @@ dependencies:
   - plotly
   - dash
   - hdbscan
+  - umap-learn

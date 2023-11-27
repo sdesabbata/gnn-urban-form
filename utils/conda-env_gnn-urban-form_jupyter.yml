@@ -1,0 +1,19 @@
+# conda env create -f conda-env_gnn-urban-form_jupyter.yml
+# conda activate gnn-urban-form-jupyter
+#
+name: gnn-urban-form-jupyter
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - networkx
+  - osmnx
+  - colormaps
+  - seaborn
+  - plotly
+  - dash
+  - hdbscan
+  - umap-learn=0.5.2
+  - jupyterlab
+  - notebook
+

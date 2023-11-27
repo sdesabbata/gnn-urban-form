@@ -39,27 +39,40 @@ class VanillaGCNEncoder(torch.nn.Module):
 # https://github.com/pyg-team/pytorch_geometric/blob/11513fdde087d001e15c2eda5ff3c07c2240e1c0/examples/graph_gps.py
 
 class GINEEncoder(torch.nn.Module):
-    def __init__(self, in_channels, edge_dim, gcn_channels, out_channels):
+    def __init__(self, in_channels, edge_dim, gine_mlp_channels, out_channels):
         super(GINEEncoder, self).__init__()
 
-        nn_in = torch.nn.Sequential(
-            torch.nn.Linear(in_channels, gcn_channels),
-            torch.nn.ReLU(),
-            torch.nn.Linear(gcn_channels, gcn_channels),
-        )
-        nn_conv = torch.nn.Sequential(
-            torch.nn.Linear(gcn_channels, gcn_channels),
-            torch.nn.ReLU(),
-            torch.nn.Linear(gcn_channels, gcn_channels),
-        )
+        self.gine_convs = torch.nn.ModuleList()
+        #for layers_features in gin_mlp_channels:
+        #    self.gine_convs.append(GINEConv(
+        #        torch.nn.Sequential(
+        #            torch.nn.Linear(layers_features[0], layers_features[1]),
+        #            torch.nn.ReLU(),
+        #            torch.nn.Linear(layers_features[1], layers_features[2]),
+        #            torch.nn.ReLU()
+        #        ),
+        #        edge_dim=edge_dim
+        #    ))
+        for mlp_channels in gine_mlp_channels:
+            mlp_layers = []
+            for i in range(len(mlp_channels) - 1):
+                mlp_layers += [
+                    torch.nn.Linear(mlp_channels[i], mlp_channels[i + 1]),
+                    torch.nn.ReLU(),
+                    #torch.nn.BatchNorm2d(channel_list[i + 1])
+                ]
+            self.gine_convs.append(
+                GINEConv(
+                    torch.nn.Sequential(*mlp_layers),
+                    edge_dim=edge_dim
+                )
+            )
 
-        self.en_conv1 = GINEConv(nn_in, edge_dim=edge_dim)
-        self.en_conv2 = GINEConv(nn_conv, edge_dim=edge_dim)
-        self.en_linear_post = torch.nn.Linear(gcn_channels, out_channels)
+        self.en_linear_post = torch.nn.Linear(gine_mlp_channels[-1][-1], out_channels)
 
     def forward(self, x, edge_index, edge_weight):
-        x = self.en_conv1(x, edge_index, edge_weight).relu()
-        x = self.en_conv2(x, edge_index, edge_weight).relu()
+        for conv in self.gine_convs:
+            x = conv(x, edge_index, edge_weight)
         x = self.en_linear_post(x)
         return torch.tanh(x)
 
