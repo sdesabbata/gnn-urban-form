@@ -54,8 +54,8 @@ In our preliminary analysis (see [results and supplementary materials](#results-
 
 The pages below present the main results obtained from our analysis as a jupyter notebook compiled to html, alongside an additional quarto document.
 
-- [Exploratory analyses of the results obtained for Leicester](gnnuf_exploratory_analysis_v0-5-emb_Leicester.html)
-  - [additional correlations pairs-plot created in R](gnnuf_exploratory_analysis_v0-5-emb_Leicester_correlations.html)
+- [Exploratory analyses of the results obtained for Leicester](https://sdesabbata.github.io/gnn-urban-form/gnnuf_exploratory_analysis_v0-5-emb_Leicester.html)
+  - [additional correlations pairs-plot created in R](https://sdesabbata.github.io/gnn-urban-form/gnnuf_exploratory_analysis_v0-5-emb_Leicester_correlations.html)
 
 
 
