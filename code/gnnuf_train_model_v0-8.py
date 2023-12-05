@@ -79,7 +79,7 @@ for epoch in range(1, epochs + 1):
         optimizer.zero_grad()
         # Encode
         osmnx_graph = osmnx_graph.to(device)
-        z = model(osmnx_graph.x, osmnx_graph.edge_index, osmnx_graph.edge_weight)
+        z = model.encode(osmnx_graph.x, osmnx_graph.edge_index, osmnx_graph.edge_weight)
         # Decode and calculate loss
         loss = model.recon_loss(z, osmnx_graph.edge_index)
         epoch_loss += float(loss)
