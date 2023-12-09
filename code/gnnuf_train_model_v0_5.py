@@ -5,7 +5,7 @@ import copy
 from torch_geometric.nn import GAE
 from torch_geometric.loader import DataLoader
 # GNN models
-from gnnuf_models import *
+from gnnuf_models_v0_5 import *
 # OSMNx dataset
 from osmnx_dataset import *
 
