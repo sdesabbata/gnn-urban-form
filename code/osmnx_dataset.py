@@ -1,6 +1,7 @@
 # Base libraries
 import os
 from os.path import isfile, join
+import glob
 from datetime import datetime
 import sys
 import math
@@ -78,11 +79,14 @@ class OSMnxDataset(InMemoryDataset):
         print(r"Please download the data manually")
 
     def process(self):
-        graphml_file_names = [
-            join(self.root + "/raw", f)
-            for f in os.listdir(self.root + "/raw")
-            if f[-8:] == ".graphml"
-            if isfile(join(self.root + "/raw", f))]
+        # graphml_file_names = [
+        #     join(self.root + "/raw", f)
+        #     for f in os.listdir(self.root + "/raw")
+        #     if f[-8:] == ".graphml"
+        #     if isfile(join(self.root + "/raw", f))]
+
+        graphml_file_names = glob.glob(join(self.root + "/raw", '*.graphml'))
+        graphml_file_names = sorted(graphml_file_names, key=os.path.getsize)
 
         neighbourhoods_list = []
 
