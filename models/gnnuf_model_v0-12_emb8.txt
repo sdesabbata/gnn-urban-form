@@ -1,0 +1,85 @@
+python code/gnnuf_train_model_v0_12.py
+
+Seed set to 2674
+Run on CUDA
+
+GAEModel(
+  (gae): GAE(
+    (encoder): SimpleSparseGINEEncoder(
+      (onehot_enc): Sequential(
+        (0): Linear(in_features=1, out_features=4, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Linear(in_features=4, out_features=32, bias=True)
+        (3): LeakyReLU(negative_slope=0.01)
+        (4): Dropout(p=0.2, inplace=False)
+        (5): Linear(in_features=32, out_features=256, bias=True)
+      )
+      (gineconv_1_lin): Sequential(
+        (0): Linear(in_features=256, out_features=256, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Linear(in_features=256, out_features=256, bias=True)
+      )
+      (gineconv_1): GINEConv(nn=Sequential(
+        (0): Linear(in_features=256, out_features=256, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Linear(in_features=256, out_features=256, bias=True)
+      ))
+      (gineconv_2_lin): Sequential(
+        (0): Linear(in_features=256, out_features=256, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Linear(in_features=256, out_features=256, bias=True)
+      )
+      (gineconv_2): GINEConv(nn=Sequential(
+        (0): Linear(in_features=256, out_features=256, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Linear(in_features=256, out_features=256, bias=True)
+      ))
+      (gineconv_3_lin): Sequential(
+        (0): Linear(in_features=256, out_features=256, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Dropout(p=0.2, inplace=False)
+        (3): Linear(in_features=256, out_features=256, bias=True)
+      )
+      (gineconv_3): GINEConv(nn=Sequential(
+        (0): Linear(in_features=256, out_features=256, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Dropout(p=0.2, inplace=False)
+        (3): Linear(in_features=256, out_features=256, bias=True)
+      ))
+      (post_lin): Sequential(
+        (0): Linear(in_features=256, out_features=32, bias=True)
+        (1): LeakyReLU(negative_slope=0.01)
+        (2): Linear(in_features=32, out_features=8, bias=True)
+      )
+    )
+    (decoder): InnerProductDecoder()
+  )
+)
+
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+
+Finding best initial lr:  80%|██████████████████████████████████████████████████████████████████████████████████████▍                     | 80/100 [00:01<00:00, 42.25it/s]
+LR finder stopped early after 80 steps due to diverging loss.
+Learning rate set to 0.0003019951720402019
+new_lr=0.0003019951720402019
+
+  | Name | Type | Params | Mode 
+--------------------------------------
+0 | gae  | GAE  | 413 K  | train
+--------------------------------------
+413 K     Trainable params
+0         Non-trainable params
+413 K     Total params
+1.654     Total estimated model params size (MB)
+36        Modules in train mode
+0         Modules in eval mode
+Epoch 66: 100%|█████████████████████████████████████████████████████████████████████████████| 245/245 [00:04<00:00, 59.59it/s, v_num=0_1, val_loss=0.915, train_loss=0.895]
+
+Testing DataLoader 0: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [00:00<00:00, 82.38it/s]
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Test metric        ┃       DataLoader 0        ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│         val_loss          │    0.9137855768203735     │
+└───────────────────────────┴───────────────────────────┘

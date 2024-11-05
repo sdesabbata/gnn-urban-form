@@ -161,6 +161,7 @@ cython_debug/
 
 # Storage
 storage/
+scratch/
 qsub/
 sbatch/
 analysis/local_directories.py
