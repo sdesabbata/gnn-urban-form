@@ -1,0 +1,264 @@
+---
+title: "Exploring urban form<br/>through deep unsupervised<br/>graph representation learning"
+author: "<br/><b>Stef De Sabbata</b><br/><span style=\"font-size: 30px;\">Andrea Ballatore, Pengyuan Liu and Nicholas J. Tate<br/></span><br/><span style=\"font-size: 30px;\"><a href=\"https://sdesabbata.github.io/gnn-urban-form/\">sdesabbata.github.io/gnn-urban-form</a></span>"
+format: 
+  revealjs:
+    embed-resources: true
+    theme: uol-readable.scss
+title-slide-attributes:
+    data-background-color: "#570F1A"
+    data-color: "#FFFFFF"
+include-in-header:
+  - text: |
+      <style>
+      #title-slide .title {
+        font-size: 60px;
+      }
+      #title-slide .author {
+        font-size: 40px;
+      }
+      </style>
+bibliography: biblography-trans-urban-living-2024.bib
+citations-hover: true
+---
+
+
+
+## Learning urban form representations {.smaller}
+
+- Deep neural network model on street network graphs
+  - **Graph Neural Networks (GNNs)**
+  - see e.g. @bruna2014spectralnetworkslocallyconnected, @pmlr-v70-gilmer17a, @hamilton2020graph
+- Learn effective representations of urban form from data
+  - @ARRIBASBEL2022102641 define urban form as *what a space "looks like"* compared to urban function, which focuses on *"what it is used for"*
+- Enable down-stream urban analytics models
+
+<br/>
+
+::: {.fragment .fade-up}
+**Message passing** GNN framework
+
+$$
+h_{u}^{(l+1)} = {\scriptstyle UPDATE}^{(l)} \left( h_{u}^{(l)}\ ,\ {\scriptstyle AGGREGATE}^{(l)} \left( \bigl\{ h_{v}^{(l)}\ ,\ \forall v \in N(u) \bigl\} \right) \right)
+$$
+:::
+
+
+
+## Graph AutoEncoder {.smaller}
+
+Unsupervised learning of *nodes representations* [@kipf2016variational]
+
+::: {style="line-height: 100%;"}
+- by optimising a dimensionality reduction model
+- **encoder**: uses graph-convolution and linear layers
+- **decoder**: commonly an inner product of the embeddings
+- loss: binary cross entropy for positive and negative sampled edges
+:::
+
+![](images/gnnuf_v0-12_model-drawio-01.png)
+
+
+
+## Results
+
+::: {layout="[16,-1,16]" layout-valign="center"}
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-12-emb_Leicester_scatter-colr.png)
+
+![](images/gnnuf_ea_v0-12-emb_Leicester_streetmap-colr.png)
+
+:::
+
+
+## Results (Glasgow)
+
+::: {layout="[8,-1,24]" layout-valign="center"}
+![](images/gnnuf_ea_v0-12-emb_Glasgow_scatter-colr.png)
+
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-12-emb_Glasgow_streetmap-colr.png)
+
+:::
+
+
+
+
+
+## Conclusions
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="50%"}
+
+GNNs can be used as an unsupervised framework to explore urban form
+
+- still at exploratory phase
+  - the design space is vast
+  - a systematic approach is necessary
+- testing can be particularly challenging 
+  - no *"ground-truth"* labels
+
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="45%"}
+
+::: {.fragment .fade-left}
+**Future work**
+
+- adaptability and usefulness through **space, time and scale**
+- encoding **places** beyond junctions, including buildings or points of interest
+- encoding **flows** beyond networks, including commuting or communications.
+:::
+
+:::
+::::
+
+
+
+## Thank you for your attention {.smaller}
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="45%"}
+
+**Check out our GitHub repo**
+
+[sdesabbata.github.io/gnn-urban-form](https://sdesabbata.github.io/gnn-urban-form/)
+
+![](images/sdesabbata-github-io_gnn-urban-form.png){width=80%}
+
+:::
+::: {.column width="5%"}
+:::
+::: {.column width="45%"}
+
+
+**Stef De Sabbata**<br/>
+University of Leicester, UK<br/>
+s.desabbata@leicester.ac.uk<br/>
+<br/>
+Andrea Ballatore<br/>
+King's College London, UK<br/>
+andrea.ballatore@kcl.ac.uk<br/>
+<br/>
+Pengyuan Liu<br/>
+Singapore-ETH Centre, Singapore<br/>
+*(moving to Glasgow in Jan 2025)*
+pengyuan.liu@sec.ethz.ch<br/>
+<br/>
+Nicholas J. Tate<br/>
+University of Leicester, UK<br/>
+njt9@leicester.ac.uk
+
+:::
+::::
+
+
+## Graph AutoEncoder (some details) {.smaller}
+
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="50%"}
+
+**Pre-processing**
+
+- random 1% of nodes from 138 UK cities
+- an ego-graph for each node
+  - 500m network distance (min 8 nodes)
+  - junctions as nodes
+    - num. of segments as an attribute
+    - bounded min-max (1 to 4)
+  - street segments as edges
+    - length as an edge attribute
+    - bounded min-max (50m to 500m)
+
+:::
+::: {.column width="50%"}
+
+::: {.fragment .fade-left}
+**Model**
+
+- [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/index.html)
+- five-step encoder
+  - one MLP
+    - 1 attribute to 256 features
+  - three [GINE](https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.nn.conv.GINEConv.html#torch_geometric.nn.conv.GINEConv) [@huStrategiesPretrainingGraph2020] layers 
+    - 256 hidden features
+  - one MLP
+    - 256 features to 2 embeddings
+- trained for 1000 epochs 
+  - AdamW optimiser 
+  - random 70% + 10% val of ego-graphs
+- tested on remaining 20%
+:::
+
+:::
+::::
+
+
+
+## Case study {.smaller}
+
+:::: {.columns style="line-height: 100%;"}
+::: {.column width="25%"}
+
+Leicester (UK)
+
+- Population: 368,600  at the [2021 UK Census](https://www.ons.gov.uk/visualisations/censuspopulationchange/E06000016/), increased by 11.8% since 2011
+- Minority-majority city: 43.4% identify as Asian, 33.2% are White British
+- Area: about 73 km2 (28 sq mi)
+- Simplified [OSM](https://www.openstreetmap.org/#map=12/52.6272/-1.1179) street network data by @DVN/KA5HJ3_2020
+
+:::
+::: {.column width="75%"}
+
+![](images/Leicester-spatial-signatures.png)
+:::
+::::
+
+
+## Baselines comparison
+
+::: {style="font-size: 45%;"}
+
+|              |                                   | Node embeddings |                  | Ego-graph emb. |                  |
+|--------------|-----------------------------------|-----------------|------------------|----------------|------------------|
+|              | Measure                           | Fist dimension  | Second dimension | Fist dimension | Second dimension |
+| Node in city |                                   |                 |                  |                |                  |
+|              | closeness centrality              | 0.134***        | -0.249***        | 0.260***       | -0.310***        |
+|              | betweenness centrality            | 0.106***        | -0.203***        | 0.188***       | -0.100***        |
+| Ego-graph    |                                   |                 |                  |                |                  |
+|              | count of nodes                    | 0.003***        | -0.126***        | 0.049***       | -0.258***        |
+|              | count of edges                    | -0.032***       | -0.085***        | -0.002.        | -0.194***        |
+|              | average node degree               | -0.179***       | 0.218***         | -0.257***      | 0.305***         |
+|              | total edge length                 | 0.017**         | 0.134***         | 0.070***       | 0.108***         |
+|              | average edge length               | 0.092***        | 0.439***         | 0.134***       | 0.690***         |
+|              | average count of streets per node | 0.230***        | 0.256***         | 0.429***       | 0.354***         |
+|              | count of intersections            | 0.064***        | -0.038***        | 0.158**        | -0.129***        |
+|              | total street segment length       | 0.077***        | 0.117***         | 0.165***       | 0.085***         |
+|              | count of street segments          | 0.035***        | -0.083***        | 0.108***       | -0.192***        |
+|              | average street segment length     | 0.074***        | 0.428***         | 0.101***       | 0.672***         |
+|              | average street circuity           | -0.075***       | 0.001.           | -0.140***      | -0.003.          |
+
+:::
+
+
+## Results (embedding clustering)
+
+::: {layout="[16,-1,16]" layout-valign="center"}
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-12-emb_Leicester_scatter-clust.png)
+
+![](images/gnnuf_ea_v0-12-emb_Leicester_streetmap-clust.png)
+:::
+
+
+
+## Results (ego-graph pooled)
+
+::: {layout="[16,-1,16]" layout-valign="center"}
+![<span style="font-size: 12px;">Street network data by OpenStreetMap, under ODbL, and by @DVN/KA5HJ3_2020, under CC0 1.0</span>](images/gnnuf_ea_v0-12-emb-pooled_Leicester_scatter-bivar.png)
+
+![](images/gnnuf_ea_v0-12-emb-pooled_Leicester_streetmap-bivar.png)
+:::
+
+
+
+## References {.smaller}
