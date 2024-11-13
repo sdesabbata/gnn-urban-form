@@ -1,0 +1,38 @@
+# conda env create --file=conda-env_pyg-2-6-1_cpu.yml
+# conda activate pyg-2-6-1_cpu
+#
+# name: pyg-2-6-1_cpu
+channels:
+  - conda-forge
+  - pytorch
+  - pyg
+dependencies:
+  # Python
+  - conda-forge::python
+  # Pytorch
+  - pytorch::pytorch=2.4
+  - pytorch::torchvision
+  - pytorch::torchaudio 
+  - pytorch::cpuonly
+  - conda-forge::lightning
+  # Pytorch Geometric
+  - pyg::pyg=2.6.1
+  - pyg::pytorch-sparse 
+  - pyg::pytorch-scatter
+  # Other
+  - conda-forge::tensorboard
+  - conda-forge::fastparquet  
+  - conda-forge::geopandas
+  - conda-forge::pysal
+  - conda-forge::networkx
+  - conda-forge::osmnx
+  - conda-forge::clustergram
+  - conda-forge::hdbscan
+  - conda-forge::umap-learn
+  - conda-forge::seaborn
+  - plotly::plotly
+  - plotly::dash
+  # Jupyter notebooks
+  - conda-forge::jupyterlab
+  - conda-forge::notebook
+
