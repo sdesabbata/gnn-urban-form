@@ -54,13 +54,14 @@ class SimpleSparseGINEEncoder(pl.LightningModule):
         self.mid_channels = 32
         self.emb_channels = 256
         self.out_channels = out_channels
+        self.mid_channels_to_out = self.mid_channels if self.mid_channels >= self.out_channels else self.out_channels
 
         self.onehot_enc = nn.Sequential(
             nn.Linear(self.in_channels, self.hot_channels),
             nn.LeakyReLU(),
             nn.Linear(self.hot_channels, self.mid_channels),
             nn.LeakyReLU(),
-            nn.Dropout(0.2),
+            # nn.Dropout(0.2),
             nn.Linear(self.mid_channels, self.emb_channels)
         )
 
@@ -87,26 +88,60 @@ class SimpleSparseGINEEncoder(pl.LightningModule):
         self.gineconv_3_lin = nn.Sequential(
             nn.Linear(self.emb_channels, self.emb_channels),
             nn.LeakyReLU(),
-            nn.Dropout(0.2),
             nn.Linear(self.emb_channels, self.emb_channels)
         )
         self.gineconv_3 = GINEConv(
             self.gineconv_3_lin,
             edge_dim=self.edge_dim
         )
-        
-        self.post_lin = nn.Sequential(
-            nn.Linear(self.emb_channels, self.mid_channels),
+
+        self.gineconv_4_lin = nn.Sequential(
+            nn.Linear(self.emb_channels, self.emb_channels),
             nn.LeakyReLU(),
-            nn.Linear(self.mid_channels, self.out_channels)
+            nn.Linear(self.emb_channels, self.emb_channels)
+        )
+        self.gineconv_4 = GINEConv(
+            self.gineconv_4_lin,
+            edge_dim=self.edge_dim
+        )
+        
+        self.post_lin_1 = nn.Sequential(
+            nn.Linear(self.emb_channels, self.emb_channels),
+            nn.LeakyReLU(),
+            nn.Linear(self.emb_channels, self.emb_channels)
+        )
+        
+        self.post_lin_2 = nn.Sequential(
+            nn.Linear(self.emb_channels, self.emb_channels),
+            nn.LeakyReLU(),
+            nn.Linear(self.emb_channels, self.emb_channels)
+        )
+        
+        self.post_lin_3 = nn.Sequential(
+            nn.Linear(self.emb_channels, self.emb_channels),
+            nn.LeakyReLU(),
+            nn.Linear(self.emb_channels, self.emb_channels)
+        )
+        
+        self.post_lin_4 = nn.Sequential(
+            nn.Linear(self.emb_channels, self.emb_channels),
+            nn.LeakyReLU(),
+            nn.Linear(self.emb_channels, self.emb_channels)
+        )
+        
+        self.post_lin_final = nn.Sequential(
+            nn.Linear(self.emb_channels, self.mid_channels_to_out),
+            nn.LeakyReLU(),
+            nn.Linear(self.mid_channels_to_out, self.out_channels)
         )
 
     def forward(self, x, edge_index, edge_weight):
         x = self.onehot_enc(x)
-        x = self.gineconv_1(x, edge_index, edge_weight)
-        x = self.gineconv_2(x, edge_index, edge_weight)
-        x = self.gineconv_3(x, edge_index, edge_weight)
-        return self.post_lin(x)
+        x = self.gineconv_1(x, edge_index, edge_weight) #+ self.post_lin_1(x)
+        x = self.gineconv_2(x, edge_index, edge_weight) #+ self.post_lin_2(x)
+        x = self.gineconv_3(x, edge_index, edge_weight) #+ self.post_lin_3(x)
+        x = self.gineconv_4(x, edge_index, edge_weight) #+ self.post_lin_4(x)
+        return self.post_lin_final(x)
 
 
 # Define the LightningModule
@@ -115,7 +150,10 @@ class GAEModel(pl.LightningModule):
             in_channels: int = 1,
             edge_dim: int = 1,
             out_channels: int = 2,
-            learning_rate: float = 1e-3
+            learning_rate: float = 1e-3,
+            lr_scheduler_factor: float = 0.1, 
+            lr_scheduler_patience: int = 3,
+            lr_scheduler_threshold: float = 1e-2
         ):
         super().__init__()
         # Initialize the GAE model
@@ -130,6 +168,9 @@ class GAEModel(pl.LightningModule):
             )
         )
         self.learning_rate = learning_rate
+        self.lr_scheduler_factor = lr_scheduler_factor
+        self.lr_scheduler_patience = lr_scheduler_patience
+        self.lr_scheduler_threshold = lr_scheduler_threshold
         # self.best_loss = math.inf
 
     def forward(self, x, edge_index, edge_weight):
@@ -162,7 +203,7 @@ class GAEModel(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.1, patience=3, threshold=1e-3, min_lr=1e-7)
+            optimizer, mode='min', factor=0.1, patience=3, threshold=self.lr_scheduler_threshold, min_lr=1e-7)
         return {'optimizer': optimizer, 'lr_scheduler': scheduler, 'monitor': 'train_loss'}
 
     def on_save_checkpoint(self, checkpoint):
